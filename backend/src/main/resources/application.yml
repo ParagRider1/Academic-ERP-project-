@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/academic_erp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:572209473180-tsivbk02d1tldmadin5h40hcp2s0m36o.apps.googleusercontent.com}
+            client-secret: ${GOOGLE_CLIENT_SECRET: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}
+            scope: openid, profile, email
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+server:
+  port: 8080
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173
