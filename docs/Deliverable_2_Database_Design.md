@@ -1,4 +1,4 @@
-# Deliverable #2: Database Design
+# Database Design
 
 ## a) Conceptual Design (Class Diagram)
 
@@ -99,9 +99,3 @@ mysql -u root -p academic_erp < backend/db/create_schema.sql
 mysql -u root -p academic_erp < backend/db/alter_constraints.sql
 mysql -u root -p academic_erp < backend/db/insert_seed.sql
 ```
-
-Best practices applied:
-- InnoDB engine, utf8mb4 charset/collation.
-- Narrow VARCHARs on codes and emails.
-- Surrogate integer PKs, natural keys constrained as UNIQUE.
-- All FKs added after base tables (in alter script) with ON DELETE rules where appropriate.
