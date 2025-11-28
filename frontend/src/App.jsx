@@ -1,21 +1,98 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, NavLink, Navigate } from 'react-router-dom'
+import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom'
 import Timetable from './pages/Timetable'
 import CourseStudents from './pages/CourseStudents'
 import Login from './pages/Login'
 import Courses from './pages/Courses'
 
+function Unauthorized() {
+  const navigate = useNavigate();
+  
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout`, { 
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      window.location.href = '/login';
+    }
+  };
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '60vh',
+      textAlign: 'center',
+      padding: '20px',
+      maxWidth: '600px',
+      margin: '0 auto'
+    }}>
+      <h2 style={{ color: '#1e293b', marginBottom: '16px' }}>Access Denied</h2>
+      <p style={{ color: '#475569', marginBottom: '24px', lineHeight: '1.6' }}>
+        You don't have permission to access this application. 
+        Please contact the administrator if you believe this is a mistake.
+      </p>
+      <button 
+        onClick={handleLogout}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '16px',
+          transition: 'background-color 0.2s',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}
+        onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'}
+        onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}
+      >
+        Back to Login
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   const [me, setMe] = useState(null)
   const [meLoading, setMeLoading] = useState(true)
+  const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
     // soft fetch of current user
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/me`, { credentials: 'include' })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => setMe(d))
-      .catch(() => {})
-      .finally(() => setMeLoading(false))
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/me`, { 
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+      }
+    })
+      .then(async (response) => {
+        if (response.status === 403) {
+          // User is authenticated but not authorized
+          setAuthError('not_authorized');
+          return null;
+        }
+        if (!response.ok) {
+          return null;
+        }
+        return response.json();
+      })
+      .then(data => {
+        setMe(data);
+        setAuthError(null);
+      })
+      .catch((error) => {
+        console.error('Error fetching user data:', error);
+        setAuthError('network_error');
+      })
+      .finally(() => setMeLoading(false));
   }, [])
 
   const linkStyle = ({ isActive }) => ({
@@ -64,7 +141,9 @@ export default function App() {
                        radial-gradient(1000px 600px at 30% 90%, rgba(34,211,238,0.08), transparent 60%)'
         }} />
         {meLoading ? null : (
-          (me && me.email) ? (
+          (authError === 'not_authorized') ? (
+            <Unauthorized />
+          ) : (me && me.email) ? (
             <Routes>
               <Route path="/" element={<Timetable />} />
               <Route path="/login" element={<Navigate to="/" replace />} />

@@ -3,6 +3,8 @@ package com.academicerp.controller;
 import com.academicerp.dto.CourseDto;
 import com.academicerp.dto.StudentDto;
 import com.academicerp.dto.TimetableItemDto;
+import com.academicerp.entity.Employee;
+import com.academicerp.service.EmployeeService;
 import com.academicerp.service.FacultyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +23,21 @@ import java.util.Map;
 public class FacultyController {
 
   private final FacultyService facultyService;
+  private final EmployeeService employeeService;
 
   @GetMapping("/me")
   public Map<String, Object> me(@AuthenticationPrincipal OidcUser user) {
+    if (user == null || user.getEmail() == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+    }
+    
+    // Check if user exists in the employees table
+    Employee employee = employeeService.findByEmail(user.getEmail())
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User not authorized to access this application"));
+    
     return Map.of(
-      "email", user != null ? user.getEmail() : null,
-      "name", user != null ? user.getFullName() : null
+      "email", user.getEmail(),
+      "name", user.getFullName()
     );
   }
 

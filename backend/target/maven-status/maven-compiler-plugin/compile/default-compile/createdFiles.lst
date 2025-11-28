@@ -6,6 +6,7 @@ com\academicerp\entity\CourseSchedule.class
 com\academicerp\entity\FacultyCourse.class
 com\academicerp\mapper\Mappers.class
 com\academicerp\entity\Course.class
+com\academicerp\repo\EmployeeRepository.class
 com\academicerp\controller\FacultyController.class
 com\academicerp\service\FacultyService.class
 com\academicerp\controller\GlobalExceptionHandler.class
@@ -32,3 +33,4 @@ com\academicerp\entity\Department.class
 com\academicerp\entity\Specialisation$SpecialisationBuilder.class
 com\academicerp\dto\StudentDto$StudentDtoBuilder.class
 com\academicerp\repo\EmployeeRepo.class
+com\academicerp\service\EmployeeService.class
